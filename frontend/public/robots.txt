@@ -1,0 +1,38 @@
+User-agent: *
+Allow: /
+Allow: /health-benefits
+Allow: /bmr-calculator
+Allow: /yoga-exercises
+Allow: /about-us
+Allow: /login
+Allow: /register
+
+# Allow access to static assets (IMPORTANT FOR LOGO/IMAGES)
+Allow: /logo.png
+Allow: /images/
+Allow: /static/
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.gif
+Allow: /*.svg
+Allow: /*.ico
+
+# Block private/auth pages from search engines
+Disallow: /dashboard
+Disallow: /fasting-timer
+Disallow: /auth/
+Disallow: /payment
+Disallow: /donation
+
+# Block API endpoints if any
+Disallow: /api/
+
+# Allow search engines to crawl important pages
+Crawl-delay: 1
+
+# Sitemap location - use the canonical domain
+Sitemap: https://fastandyoga.com/sitemap.xml
