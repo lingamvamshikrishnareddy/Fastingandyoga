@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 node_modules/
 .env
 .DS_Store
 dist/
 android/
+=======
+node_modules/
+.env
+.DS_Store
+dist/
+android/
+>>>>>>> 5247bf0bd8e96baf1cb542f8e000182d17b13ee1
