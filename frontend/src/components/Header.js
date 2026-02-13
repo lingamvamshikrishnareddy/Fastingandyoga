@@ -1,6 +1,6 @@
 // Enhanced Header Component with Better Mobile Discovery & Health Calculator
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import gsap from 'gsap';
 
@@ -32,12 +32,13 @@ const NavigationLink = ({ to, children, isSpecial = false, description = '' }) =
   );
 };
 
-const MobileNavigationCard = ({ to, title, description, icon, isSpecial = false }) => {
+const MobileNavigationCard = ({ to, title, description, icon, isSpecial = false, onClick }) => {
   if (isSpecial) {
     return (
       <Link
         to={to}
-        className="block p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+        onClick={onClick}
+        className="block p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95"
       >
         <div className="flex items-center text-white">
           <span className="text-2xl mr-3">{icon}</span>
@@ -53,7 +54,8 @@ const MobileNavigationCard = ({ to, title, description, icon, isSpecial = false 
   return (
     <Link
       to={to}
-      className="block p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300"
+      onClick={onClick}
+      className="block p-4 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-300 active:scale-95"
     >
       <div className="flex items-center">
         <span className="text-2xl mr-3">{icon}</span>
@@ -125,75 +127,108 @@ const Navigation = ({ links, donationLink }) => (
   </div>
 );
 
-const MobileMenu = ({ links, donationLink, isOpen, toggleMenu }) => (
-  <div className="md:hidden">
-    <button
-      onClick={toggleMenu}
-      className="text-gray-600 hover:text-blue-600 focus:outline-none focus:text-blue-600 relative z-50"
-    >
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        {isOpen ? (
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-        ) : (
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-        )}
-      </svg>
-    </button>
-    
-    {/* Enhanced Mobile Menu Overlay */}
-    {isOpen && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleMenu}>
-        <div 
-          className="absolute top-16 right-0 left-0 bg-gray-50 z-50 min-h-screen overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="p-6">
-            {/* Welcome Message */}
-            <div className="mb-6 text-center">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">Welcome to Fastinjoy! 🌟</h2>
-              <p className="text-sm text-gray-600">Discover all our amazing features below</p>
+const MobileMenu = ({ links, donationLink, isOpen, toggleMenu }) => {
+  // Close menu when a link is clicked
+  const handleLinkClick = () => {
+    toggleMenu();
+  };
+
+  return (
+    <div className="md:hidden">
+      <button
+        onClick={toggleMenu}
+        className="text-gray-600 hover:text-blue-600 focus:outline-none focus:text-blue-600 relative z-50"
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+      >
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {isOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+          )}
+        </svg>
+      </button>
+      
+      {/* Enhanced Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={toggleMenu}>
+          <div 
+            className="absolute top-0 right-0 left-0 bg-gray-50 z-50 min-h-screen overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Large Close Button at Top */}
+            <div className="sticky top-0 bg-white shadow-md z-10 px-6 py-4 flex items-center justify-between border-b border-gray-200">
+              <h2 className="text-lg font-bold text-gray-800">Menu</h2>
+              <button
+                onClick={toggleMenu}
+                className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors duration-200"
+                aria-label="Close menu"
+              >
+                <svg 
+                  className="h-7 w-7 text-gray-700" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            {/* Feature Cards Grid */}
-            <div className="space-y-4 mb-6">
-              {links.map(({ to, label, icon, description }) => (
+            <div className="p-6">
+              {/* Welcome Message */}
+              <div className="mb-6 text-center">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Welcome to Fastinjoy! 🌟</h2>
+                <p className="text-sm text-gray-600">Discover all our amazing features below</p>
+              </div>
+
+              {/* Feature Cards Grid */}
+              <div className="space-y-4 mb-6">
+                {links.map(({ to, label, icon, description }) => (
+                  <MobileNavigationCard
+                    key={to}
+                    to={to}
+                    title={label}
+                    description={description}
+                    icon={icon}
+                    onClick={handleLinkClick}
+                  />
+                ))}
+              </div>
+
+              {/* Special Donation Section */}
+              <div className="border-t border-gray-300 pt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">💝 Support Our Mission</h3>
                 <MobileNavigationCard
-                  key={to}
-                  to={to}
-                  title={label}
-                  description={description}
-                  icon={icon}
+                  to={donationLink.to}
+                  title={donationLink.label}
+                  description={donationLink.description}
+                  icon={donationLink.icon}
+                  isSpecial={donationLink.isSpecial}
+                  onClick={handleLinkClick}
                 />
-              ))}
-            </div>
+              </div>
 
-            {/* Special Donation Section */}
-            <div className="border-t border-gray-300 pt-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">💝 Support Our Mission</h3>
-              <MobileNavigationCard
-                to={donationLink.to}
-                title={donationLink.label}
-                description={donationLink.description}
-                icon={donationLink.icon}
-                isSpecial={donationLink.isSpecial}
-              />
-            </div>
+              {/* Quick Tips Section */}
+              <div className="mt-8 p-4 bg-blue-50 rounded-xl">
+                <h4 className="font-semibold text-blue-800 mb-2">💡 Quick Tips</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Start with our Health Calculator for personalized recommendations</li>
+                  <li>• Use the Fasting Timer to track your progress</li>
+                  <li>• Try our guided Yoga Exercises daily</li>
+                </ul>
+              </div>
 
-            {/* Quick Tips Section */}
-            <div className="mt-8 p-4 bg-blue-50 rounded-xl">
-              <h4 className="font-semibold text-blue-800 mb-2">💡 Quick Tips</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Start with our Health Calculator for personalized recommendations</li>
-                <li>• Use the Fasting Timer to track your progress</li>
-                <li>• Try our guided Yoga Exercises daily</li>
-              </ul>
+              {/* Bottom padding for scroll */}
+              <div className="h-8"></div>
             </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};
 
 const FloatingDonationButton = () => {
   const buttonRef = useRef(null);
@@ -244,6 +279,7 @@ const Header = () => {
   const { user, logout } = useAuth();
   const logoRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (!logoRef.current) return;
@@ -274,6 +310,11 @@ const Header = () => {
     setIsMenuOpen(prev => !prev);
   };
 
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
+
   // Close menu when clicking outside or on navigation
   useEffect(() => {
     const handleResize = () => {
@@ -285,6 +326,19 @@ const Header = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -338,7 +392,7 @@ const Header = () => {
         {/* Enhanced Donation Banner */}
         <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-center py-2">
           <div className="flex items-center justify-center space-x-2 text-sm font-medium">
-            <span className="animate-bounce"></span>
+            <span className="animate-bounce">💝</span>
             <span>Help us keep this amazing wellness app running!</span>
             <Link 
               to="/donation" 
@@ -346,7 +400,7 @@ const Header = () => {
             >
               Donate Now
             </Link>
-            <span className="animate-bounce" style={{ animationDelay: '0.5s' }}></span>
+            <span className="animate-bounce" style={{ animationDelay: '0.5s' }}>💝</span>
           </div>
         </div>
       </header>
